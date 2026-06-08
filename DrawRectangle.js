@@ -48,10 +48,36 @@ function main() {
 
 	var a_Position = gl.getAttribLocation(program, "a_Position");
 	var u_FragColor = gl.getUniformLocation(program, "u_FragColor");
+	gl.uniform4f(u_FragColor, 1, 1, 1, 1);
 
 	var points = [];
 	var colors = [];
 
+	const vertexData = new Float32Array([
+		 -0.5,  0.5,
+		 -0.5, -0.5,
+		  0.5,  0.5,
+		  0.5, -0.5
+	]);
+
+	var vertexBuffer = gl.createBuffer();
+	if (!vertexBuffer) {
+		alert("Could not create buffer");
+		return;
+	}
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
+	gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+	gl.enableVertexAttribArray(a_Position);
+
+	gl.clear(gl.COLOR_BUFFER_BIT);	
+
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+
+
+/*
 	canvas.addEventListener("click", function(event) {
 		gl.clear(gl.COLOR_BUFFER_BIT);	
 		var rect = event.target.getBoundingClientRect();
@@ -70,6 +96,7 @@ function main() {
 		}
 		
 	});
+*/		
 
 	console.log("Finished...")
 }
