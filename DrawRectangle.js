@@ -46,9 +46,35 @@ function main() {
 	addShader(gl, program, gl.FRAGMENT_SHADER, fragmentShader);
 	linkAndUseProgram(gl, program);
 
+	const toRadMult = Math.PI/180.0;
+	var angleDeg = 0;
+	var angleRad = angleDeg * toRadMult;
+
+	// Translation
+	var Tx = 0;
+	var Ty = 0;
+	var Tz = 0;
+	// Rotation
+	var cosB = Math.cos(angleRad);
+	var sinB = Math.sin(angleRad);
+	// Scale 
+	var Sx = 1;
+	var Sy = 1;
+	var Sz = 1;
+
+	var xformMatrix = new Float32Array([
+		cosB,  sinB, 0,  0,
+		-sinB, cosB, 0,  0,
+		0,     0,    1,  0,
+		Tx,    Ty,   Tz, 1
+	]);
+
 	var a_Position = gl.getAttribLocation(program, "a_Position");
 	var u_FragColor = gl.getUniformLocation(program, "u_FragColor");
+	var u_xformMatrix = gl.getUniformLocation(program, "u_xformMatrix");
+
 	gl.uniform4f(u_FragColor, 1, 1, 1, 1);
+	gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
 
 	var points = [];
 	var colors = [];
@@ -75,28 +101,38 @@ function main() {
 
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-
-
-/*
+	
+	var lastClick = [0, 0];
 	canvas.addEventListener("click", function(event) {
 		gl.clear(gl.COLOR_BUFFER_BIT);	
-		var rect = event.target.getBoundingClientRect();
-		var w = rect.right - rect.left;
-		var h = rect.right - rect.left;
-		const x = (event.clientX - (w/2)) * 2 / w;
-		const y = 2 * (-event.clientY + (h/2)) / h;
 
-		points.push(new Point(x, y));
-		colors.push(new Color());
+		// Translation
+		Tx = Tx + 0.1;
+		Ty = Ty + 0.1;
+		Tz = 0;
+		// Rotation
+		angleDeg = angleDeg + 10;
+		cosB = Math.cos(angleDeg * toRadMult);
+		sinB = Math.sin(angleDeg * toRadMult);
+		// Scale 
+		Sx = Sx - 0.5;
+		Sy = Sy - 0.5;
+		Sz = 1;
 
-		for (var i = 0; i < points.length; i++) {
-			gl.vertexAttrib3f(a_Position, points[i].x, points[i].y, 0.0);
-			gl.uniform4f(u_FragColor, colors[i].r, colors[i].g, colors[i].b, colors[i].a);
-			gl.drawArrays(gl.POINTS, 0, 1);
-		}
+		var xformMatrix = new Float32Array([
+		cosB,  sinB, 0,  0,
+		-sinB, cosB, 0,  0,
+		0,     0,    1,  0,
+		Tx,    Ty,   Tz, 1
+	]);
+
+
+		gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
 		
-	});
-*/		
+	});	
+	
 
 	console.log("Finished...")
 }
