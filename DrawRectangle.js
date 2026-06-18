@@ -26,15 +26,20 @@ class Color {
 
 /*****************************************/
 
+function copy(o) {
+	return Object.assign({}, o);
+}
+
+/*****************************************/
+
 function main() {
 	const canvas = getCanvasElement();
-	const w = canvas.clientWidth;
-	const h = canvas.clientHeight;
-
-	updateSize();
-	window.addEventListener("resize", updateSize);
-
 	const gl = getWebGLContext(canvas);
+
+	// Initial Viewport and resize attachment
+	updateSize(gl, canvas);
+	window.addEventListener("resize", () => updateSize(gl, canvas));
+
 	gl.clearColor(0, 0, 0, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -46,38 +51,11 @@ function main() {
 	addShader(gl, program, gl.FRAGMENT_SHADER, fragmentShader);
 	linkAndUseProgram(gl, program);
 
-	const toRadMult = Math.PI/180.0;
-	var angleDeg = 0;
-	var angleRad = angleDeg * toRadMult;
-
-	// Translation
-	var Tx = 0;
-	var Ty = 0;
-	var Tz = 0;
-	// Rotation
-	var cosB = Math.cos(angleRad);
-	var sinB = Math.sin(angleRad);
-	// Scale 
-	var Sx = 1;
-	var Sy = 1;
-	var Sz = 1;
-
-	var xformMatrix = new Float32Array([
-		cosB,  sinB, 0,  0,
-		-sinB, cosB, 0,  0,
-		0,     0,    1,  0,
-		Tx,    Ty,   Tz, 1
-	]);
-
 	var a_Position = gl.getAttribLocation(program, "a_Position");
 	var u_FragColor = gl.getUniformLocation(program, "u_FragColor");
 	var u_xformMatrix = gl.getUniformLocation(program, "u_xformMatrix");
 
 	gl.uniform4f(u_FragColor, 1, 1, 1, 1);
-	gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
-
-	var points = [];
-	var colors = [];
 
 	const vertexData = new Float32Array([
 		 -0.5,  0.5,
@@ -94,55 +72,58 @@ function main() {
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
+	
 	gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(a_Position);
 
 	gl.clear(gl.COLOR_BUFFER_BIT);	
-
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-	
-	var lastClick = [0, 0];
+	var i = 0;
 	canvas.addEventListener("click", function(event) {
+		i += .1;
 		gl.clear(gl.COLOR_BUFFER_BIT);	
 
-		// Translation
-		Tx = Tx + 0.1;
-		Ty = Ty + 0.1;
-		Tz = 0;
-		// Rotation
-		angleDeg = angleDeg + 10;
-		cosB = Math.cos(angleDeg * toRadMult);
-		sinB = Math.sin(angleDeg * toRadMult);
-		// Scale 
-		Sx = Sx - 0.5;
-		Sy = Sy - 0.5;
-		Sz = 1;
+		const T = createTranslation(0.2*i, 0.2*i, 0);
+		const R = createRotationXYZ(0, 0, 45*i); 
+		const S = createScale(0.5*i, 0.5*i, 1); 
 
-		var xformMatrix = new Float32Array([
-		cosB,  sinB, 0,  0,
-		-sinB, cosB, 0,  0,
-		0,     0,    1,  0,
-		Tx,    Ty,   Tz, 1
-	]);
-
+		var xformMatrix = createTransformation({T : T, R : R, S : S});
+		xformMatrix = multiplyScalar(xformMatrix, i);
 
 		gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-		
 	});	
-	
 
 	console.log("Finished...")
 }
 
 /*****************************************/
 
-function updateSize() {
+function updateSize(gl, canvas) {
 	body = document.getElementsByTagName("body")[0];
 	bw = body.clientWidth;
 	bh = body.clientHeight;
+	
+	if (canvas && gl) {
+		canvas.width = canvas.clientWidth;
+		canvas.height = canvas.clientHeight;
+		gl.viewport(0, 0, canvas.width, canvas.height);
+	}
+}
+
+/*****************************************/
+
+function updateSize(gl, canvas) {
+	body = document.getElementsByTagName("body")[0];
+	bw = body.clientWidth;
+	bh = body.clientHeight;
+	
+	if (canvas && gl) {
+		canvas.width = canvas.clientWidth;
+		canvas.height = canvas.clientHeight;
+		gl.viewport(0, 0, canvas.width, canvas.height);
+	}
 }
 
 function sleep(ms) {
