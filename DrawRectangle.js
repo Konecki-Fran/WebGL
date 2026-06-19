@@ -1,39 +1,7 @@
 /*****************************************/
 
-const DEBUG = true;
-
-var bw = 0;
-var bh = 0;
-var body = null;
-
-/*****************************************/
-
-class Point {
-	constructor(x, y) {
-		this.x = x;
-		this.y = y;
-	}
-}
-
-class Color {
-	constructor(r = Math.random(), g = Math.random(), b = Math.random(), a = 1) {
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.a = a;
-	}
-}
-
-/*****************************************/
-
-function copy(o) {
-	return Object.assign({}, o);
-}
-
-/*****************************************/
-
 function main() {
-	const canvas = getCanvasElement();
+	canvas = getCanvasElement();
 	const gl = getWebGLContext(canvas);
 
 	// Initial Viewport and resize attachment
@@ -80,20 +48,29 @@ function main() {
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 	var i = 0;
-	canvas.addEventListener("click", function(event) {
-		i += .1;
+
+	var tick = function() {
+		if (g_isPaused) {
+			requestAnimationFrame(tick);
+			return;
+		}
+
+		i += .01;
 		gl.clear(gl.COLOR_BUFFER_BIT);	
 
-		const T = createTranslation(0.2*i, 0.2*i, 0);
+		const T = createIdentity(); //createTranslation(0.2*i, 0.2*i, 0);
 		const R = createRotationXYZ(0, 0, 45*i); 
-		const S = createScale(0.5*i, 0.5*i, 1); 
+		const S = createIdentity(); //createScale(0.5*i, 0.5*i, 1); 
 
 		var xformMatrix = createTransformation({T : T, R : R, S : S});
 		xformMatrix = multiplyScalar(xformMatrix, i);
 
 		gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	});	
+
+		requestAnimationFrame(tick);
+	}
+	tick();
 
 	console.log("Finished...")
 }
@@ -179,3 +156,21 @@ function checkCtx(ctx) {
 	}
 	return;
 }
+
+/*****************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
