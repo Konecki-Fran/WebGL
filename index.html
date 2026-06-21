@@ -9,11 +9,7 @@
 <canvas id="example" width="400" height="400">
 </canvas>
 
-<form>
-    <input type=button value="UP"  class="btn" onClick="javascript:this.form.amount.value++;"><br />
-    <input type=text name=amount value=5 class="text"><br /> 
-    <input type=button value="DOWN"  class="btn" onClick="javascript:this.form.amount.value--;" >
-</form>
+<input type="file" id="objFile" accept=".obj">
 
 <!-- Libraries -->
 <script  src="Point.js"></script>
@@ -23,6 +19,7 @@
 <!-- Globals -->
 <script  src="State.js"></script>
 <!-- Other -->
+<script  src="ObjReader.js"></script>
 <script  src="DrawRectangle.js"></script>
 
 <script id="VertexShader" type="x-shader/x-vertex">

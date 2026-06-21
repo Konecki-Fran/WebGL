@@ -25,11 +25,11 @@ function main() {
 
 	gl.uniform4f(u_FragColor, 1, 1, 1, 1);
 
-	const vertexData = new Float32Array([
-		 -0.5,  0.5,
-		 -0.5, -0.5,
-		  0.5,  0.5,
-		  0.5, -0.5
+	var vertexData = new Float32Array([
+		 -0.5,  0.5, 0,
+		 -0.5, -0.5, 0,
+		  0.5,  0.5, 0,
+		  0.5, -0.5, 0
 	]);
 
 	var vertexBuffer = gl.createBuffer();
@@ -41,13 +41,53 @@ function main() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
 	
-	gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(a_Position);
 
 	gl.clear(gl.COLOR_BUFFER_BIT);	
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexData.length/3);
 
 	var i = 0;
+	var tx = 0;
+	var ty = 0;
+	var s = 1;
+
+	canvas.addEventListener("click", function(event) {
+		g_isPaused = !g_isPaused;
+	});	
+
+	document.addEventListener("keydown", (event) => {
+	  switch (event.key) {
+	    case "ArrowDown":
+	      ty -= .02;
+	      break;
+	    case "ArrowUp":
+	      ty += .02;
+	      break;
+	    case "ArrowLeft":
+	      tx -= .02;
+	      break;
+	    case "ArrowRight":
+	      tx += .02;
+	      break;
+	    case "1":
+	    case "2":
+	    case "3":
+	    case "4":
+	    case "5":
+	      s = parseInt(event.key) * 0.33;
+	      break;
+	  }
+	});
+
+	document.getElementById("objFile").addEventListener("change", async (e) => {
+	    const file = e.target.files[0];
+	    const vertices = await readObj(file);
+	    console.log(vertices);
+	    vertexData = vertices;
+	    gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
+
+	});
 
 	var tick = function() {
 		if (g_isPaused) {
@@ -58,15 +98,15 @@ function main() {
 		i += .01;
 		gl.clear(gl.COLOR_BUFFER_BIT);	
 
-		const T = createIdentity(); //createTranslation(0.2*i, 0.2*i, 0);
-		const R = createRotationXYZ(0, 0, 45*i); 
-		const S = createIdentity(); //createScale(0.5*i, 0.5*i, 1); 
+		const T = createTranslation(tx, ty, 0);
+		const R = createRotationXYZ(0, 45*i, 0); 
+		const S = createScale(s, s, 1); 
 
 		var xformMatrix = createTransformation({T : T, R : R, S : S});
 		xformMatrix = multiplyScalar(xformMatrix, i);
 
 		gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexData.length/3);
 
 		requestAnimationFrame(tick);
 	}
@@ -158,8 +198,6 @@ function checkCtx(ctx) {
 }
 
 /*****************************************/
-
-
 
 
 
