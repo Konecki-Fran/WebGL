@@ -20,32 +20,55 @@ function main() {
 	linkAndUseProgram(gl, program);
 
 	var a_Position = gl.getAttribLocation(program, "a_Position");
-	var u_FragColor = gl.getUniformLocation(program, "u_FragColor");
+	var a_Color = gl.getAttribLocation(program, "a_Color");
+
+	//var u_FragColor = gl.getUniformLocation(program, "u_FragColor");
 	var u_xformMatrix = gl.getUniformLocation(program, "u_xformMatrix");
 
-	gl.uniform4f(u_FragColor, 1, 1, 1, 1);
+	//gl.uniform4f(u_FragColor, 1, 1, 1, 1);
 
 	var vertexData = new Float32Array([
-		 -0.5,  0.5, 0,
-		 -0.5, -0.5, 0,
-		  0.5,  0.5, 0,
-		  0.5, -0.5, 0
+		 -0.5,  0.5, 0.5, 1.0, 0.2, 0.4, 0.6,
+		 -0.5, -0.5, 0.5, 0.2, 1.0, 0.6, 0.8,
+		  0.5,  0.5, 0.5, 0.4, 0.6, 1.0, 1.0,
+		  0.5, -0.5, 0.5, 1.0, 1.0, 1.0, 0.2,
+
+		  0.5,  0.5, -0.5, 1.0, 0.5, 0.4, 0.6,
+		  0.5, -0.5, -0.5, 1.0, 0.5, 0.6, 0.8,
+		 -0.5,  0.5, -0.5, 0.4, 0.5, 1.0, 1.0,
+		 -0.5, -0.5, -0.5, 0.6, 0.5, 1.0, 0.2,
 	]);
 
+	var indexData = new Float32Array([
+		0, 1, 2, 3,
+		4, 5, 6, 7
+	]);
+
+	const elementSize = vertexData.BYTES_PER_ELEMENT;
+	const stride = (3 + 4) * elementSize;
+
 	var vertexBuffer = gl.createBuffer();
-	if (!vertexBuffer) {
-		alert("Could not create buffer");
+	var indexBuffer = gl.createBuffer();
+
+	if (! (vertexBuffer && indexBuffer)) {
+		alert("Could not create buffers");
 		return;
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
+
+	//gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+	//gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
 	
-	gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, stride, 0);
 	gl.enableVertexAttribArray(a_Position);
 
+	gl.vertexAttribPointer(a_Color, 4, gl.FLOAT, false, stride, 3 * elementSize);
+	gl.enableVertexAttribArray(a_Color);
+
 	gl.clear(gl.COLOR_BUFFER_BIT);	
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexData.length/3);
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 8);
 
 	var i = 0;
 	var tx = 0;
@@ -106,7 +129,7 @@ function main() {
 		xformMatrix = multiplyScalar(xformMatrix, i);
 
 		gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexData.length/3);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 8);
 
 		requestAnimationFrame(tick);
 	}
