@@ -1,52 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Draw a blue rectangle (canvas version)</title>
-</head>
-<body onload="main()">
+  <head>
+    <meta charset="utf-8" />
+    <title>Draw a blue rectangle (canvas version)</title>
+  </head>
+  <body onload="main()">
+    <canvas id="example" width="400" height="400"> </canvas>
 
-<canvas id="example" width="400" height="400">
-</canvas>
+    <input type="file" id="objFile" accept=".obj" />
 
-<input type="file" id="objFile" accept=".obj">
+    <!-- Libraries -->
+    <script src="Point.js"></script>
+    <script src="Color.js"></script>
+    <script src="Mat4.js"></script>
+    <script src="Utils.js"></script>
+    <script src="Cube.js"></script>
+    <!-- Globals -->
+    <script src="State.js"></script>
+    <!-- Other -->
+    <script src="ObjReader.js"></script>
+    <script src="DrawRectangle.js"></script>
 
-<!-- Libraries -->
-<script  src="Point.js"></script>
-<script  src="Color.js"></script>
-<script  src="Mat4.js"></script>
-<script  src="Utils.js"></script>
-<!-- Globals -->
-<script  src="State.js"></script>
-<!-- Other -->
-<script  src="ObjReader.js"></script>
-<script  src="DrawRectangle.js"></script>
+    <script id="VertexShader" type="x-shader/x-vertex">
+      attribute vec4 a_Position;
+      attribute vec2 a_TexCoord;
 
-<script id="VertexShader" type="x-shader/x-vertex">
-attribute vec4 a_Position;
-attribute vec2 a_TexCoord;
+      uniform mat4 u_xformMatrix;
 
-uniform mat4 u_xformMatrix;
+      varying vec2 v_TexCoord;
 
-varying vec2 v_TexCoord;
+      void main() {
+          gl_Position = u_xformMatrix * a_Position;
+          v_TexCoord = a_TexCoord;
+      }
+    </script>
 
-void main() {
-    gl_Position = u_xformMatrix * a_Position;
-    v_TexCoord = a_TexCoord;
-}
-</script>
+    <script id="FragmentShader" type="x-shader/x-fragment">
+      precision mediump float;
 
-<script id="FragmentShader" type="x-shader/x-fragment">
-precision mediump float;
+      varying vec2 v_TexCoord;
 
-varying vec2 v_TexCoord;
+      uniform sampler2D u_Sampler;
+      uniform sampler2D u_Sampler2;
 
-uniform sampler2D u_Sampler;
+      void main() {
+        vec4 color1 = texture2D(u_Sampler, v_TexCoord);
+        vec4 color2 = texture2D(u_Sampler2, v_TexCoord);
 
-void main() {
-	gl_FragColor = texture2D(u_Sampler, v_TexCoord);
-}
-</script>
-
-</body>
+        gl_FragColor = mix(color1, color2, 0.5);
+      }
+    </script>
+  </body>
 </html>
