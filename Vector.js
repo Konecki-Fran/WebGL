@@ -1,12 +1,7 @@
 class Vector3 {
   constructor(x, y, z) {
-    if (
-      !(typeof x === "number" && typeof z === "number" && typeof z === "number")
-    ) {
-      throw TypeError(
-        "Vector3.constructor must be called with arguments of type number of Array of numbers!",
-      );
-    }
+    enforceTypes([x, y, z], "number");
+
     this.vector = new Float32Array([x, y, z]);
   }
 
@@ -23,25 +18,25 @@ class Vector3 {
   }
 
   add(other) {
-    enforceClass(other, "add");
+    enforceTypes(other, Vector3);
 
     return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
   }
 
   subtract(other) {
-    enforceClass(other, "subtract");
+    enforceTypes(other, Vector3);
 
     return new Vector3(this.x - other.x, this.y - other.y, this.z - other.z);
   }
 
   dot(other) {
-    enforceClass(other, "dot");
+    enforceTypes(other, Vector3);
 
     return this.x * other.x + this.y * other.y + this.z * other.z;
   }
 
   cross(other) {
-    enforceClass(other, "cross");
+    enforceTypes(other, Vector3);
 
     return new Vector3(
       this.y * other.z - this.z * other.y,
@@ -68,13 +63,5 @@ class Vector3 {
 
   float32Array() {
     return this.vector;
-  }
-
-  enforceClass(other, functionName) {
-    if (!(other instanceof Vector3)) {
-      throw TypeError(
-        "Vector3." + functionName + " called with non-Vector3 argument!",
-      );
-    }
   }
 }

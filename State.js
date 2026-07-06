@@ -1,6 +1,5 @@
 /*****************************************/
 
-const DEBUG = true;
 var g_isPaused = false;
 
 var bw = 0;

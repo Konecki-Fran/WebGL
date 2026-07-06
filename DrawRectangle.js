@@ -21,7 +21,9 @@ function main() {
   var a_Position = gl.getAttribLocation(program, "a_Position");
   var a_TexCoord = gl.getAttribLocation(program, "a_TexCoord");
 
-  var u_xformMatrix = gl.getUniformLocation(program, "u_xformMatrix");
+  var u_Model = gl.getUniformLocation(program, "u_Model");
+  var u_View = gl.getUniformLocation(program, "u_View");
+  var u_Proj = gl.getUniformLocation(program, "u_Proj");
 
   var vertexData = createCubeVertices();
   var indexData = createCubeIndices();
@@ -118,10 +120,13 @@ function main() {
     const R = createRotationXYZ(15 * i, 45 * i, 0);
     const S = createScale(s, s, 1);
 
-    var xformMatrix = createTransformation({ T: T, R: R, S: S });
-    xformMatrix = multiplyScalar(xformMatrix, i);
+    var modelMatrix = createTransformation({ T: T, R: R, S: S });
+    modelMatrix = multiplyScalar(modelMatrix, i);
 
-    gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
+    gl.uniformMatrix4fv(u_Model, false, modelMatrix);
+    gl.uniformMatrix4fv(u_View, false, createIdentity());
+    gl.uniformMatrix4fv(u_Proj, false, createIdentity());
+
     gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 
     requestAnimationFrame(tick);

@@ -89,18 +89,30 @@ function createScale(sx, sy, sz) {
 }
 
 function lookAt(eye, center, up) {
-    
-    const fwd = new Vector3(center[0] - eye[0], center[1] - eye[1], center[2] - eye[2]).normalize();
-    const up = normalize(up[0], up[1], up[2]);
-    const right = normalize3D(
-        fwd[1] * up[2] - fwd[2] * up[1],
-    e-c normalize = fwd
-    cross fwd x up - normalize = right
-    cross right x e-c - normalize = up
+  enforceTypes([eye, center, up], Vector3);
 
+  const fwd = new Vector3(
+    eye.x - center.x,
+    eye.y - center.y,
+    eye.z - center.z,
+  ).normalize();
+  up = up.normalize();
+  const right = fwd.cross(up).normalize();
 
-
-  */
+  return new Float32Array([
+    right.x,
+    right.y,
+    right.z,
+    0,
+    up.x,
+    up.y,
+    up.z,
+    0,
+    -fwd.x,
+    -fwd.y,
+    -fwd.z,
+    1,
+  ]);
 }
 
 /*****************************************/
@@ -267,5 +279,3 @@ function multiplyScalar(matrix, scalar) {
 }
 
 /*****************************************/
-
-

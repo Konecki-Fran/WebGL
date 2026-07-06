@@ -9,6 +9,9 @@
 
     <input type="file" id="objFile" accept=".obj" />
 
+    <!-- Globals -->
+    <script src="State.js"></script>
+    <script src="Settings.js"></script>
     <!-- Libraries -->
     <script src="Point.js"></script>
     <script src="Color.js"></script>
@@ -16,8 +19,6 @@
     <script src="Mat4.js"></script>
     <script src="Utils.js"></script>
     <script src="Cube.js"></script>
-    <!-- Globals -->
-    <script src="State.js"></script>
     <!-- Other -->
     <script src="ObjReader.js"></script>
     <script src="DrawRectangle.js"></script>
@@ -26,12 +27,14 @@
       attribute vec4 a_Position;
       attribute vec2 a_TexCoord;
 
-      uniform mat4 u_xformMatrix;
+      uniform mat4 u_Model;
+      uniform mat4 u_View;
+      uniform mat4 u_Proj;
 
       varying vec2 v_TexCoord;
 
       void main() {
-          gl_Position = u_xformMatrix * a_Position;
+          gl_Position = u_Proj * u_View * u_Model * a_Position;
           v_TexCoord = a_TexCoord;
       }
     </script>
